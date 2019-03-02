@@ -2,7 +2,8 @@
 //d3.event.preventDefault()
 var tableData = data;
 console.log(tableData)
-
+var originalPlaceholder= d3.select("#datetime").property("placeholder")
+console.log(originalPlaceholder)
 // YOUR CODE HERE!
 var tbody = d3.select("tbody")
 var srchbutton = d3.select("#filter-btn")
@@ -18,12 +19,16 @@ srchbutton.on("click", function() {
     console.log(inputValue)
     if (inputValue===""){
         var filteredData=data
+        inputValue=originalPlaceholder
     }
     else{
     var filteredData = data.filter(ufo => ufo.datetime === inputValue)
     console.log(filteredData)}
 
     tablefill(filteredData)
+    d3.select("#datetime").property("value","")
+    
+    d3.select("#datetime").property("placeholder",inputValue)
 })
 
 function tablefill(data){
