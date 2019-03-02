@@ -12,25 +12,42 @@ var inputElement = d3.select("#datetime")
 var inputValue = inputElement.property("value")
 var filteredData = data.filter(ufo => ufo.datetime === inputValue)
 
+var citydrpdn=d3.select("#d3-citydrpdn")
+
 srchbutton.on("click", function() {
-    // Select the current count
+    
+
+
     d3.event.preventDefault()
     var inputValue = inputElement.property("value")
+    var citydrpdn=d3.select("#d3-citydrpdn")
+    var drpdn = citydrpdn.property("value")
     console.log(inputValue)
-    if (inputValue===""){
+    console.log("dropdown value:",drpdn)
+    
+    if (drpdn==="" && inputValue===""){
+    
+    //if (inputValue===""){
         var filteredData=data
         inputValue=originalPlaceholder
     }
-    else{
-    var filteredData = data.filter(ufo => ufo.datetime === inputValue)
-    console.log(filteredData)}
-
+    else if (inputValue!="" && drpdn===""){    
+        var filteredData = data.filter(ufo => ufo.datetime === inputValue)
+        console.log(filteredData)}
+    else if (inputValue==="" && drpdn!=""){
+        var filteredData = data.filter(ufo => ufo.city === drpdn)
+        console.log(filteredData)}
+    else {
+        var filteredData = data.filter(ufo => (ufo.city === drpdn && ufo.datetime === inputValue) )
+        console.log(filteredData)
+    }
     tablefill(filteredData)
     d3.select("#datetime").property("value","")
-    
+    d3.select("#d3-citydrpdn").property("value","")
     d3.select("#datetime").property("placeholder",inputValue)
 })
 
+/////////////////////TABLE FILL DATA/////////////////////////
 function tablefill(data){
 
 d3.select("tbody").selectAll("td").remove()
@@ -42,8 +59,24 @@ data.forEach((ufo) => {
       cell.text(value);
     });
   })};
+///////////////////////CITY COMBO FILL DATA //////////////////////
+  function citydrpfill(data){
+    citydrpdn.append("option")
+    data.forEach((ufo)=>{
+    Object.entries(ufo).forEach(([key, value]) => {
+      ;
+      if (key==="city"){
+            var cell = citydrpdn.append("option")
+            cell.text(value)};
+
+
+  })
+})}
+//////////////////////////////////////////////////////////////////
+
 
 tablefill(data)
+citydrpfill(data)
 
 
 
