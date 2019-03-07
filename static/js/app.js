@@ -49,10 +49,10 @@ srchbutton.on("click", function() {
         var filteredData = data.filter(ufo => ufo.datetime === inputValue)
         console.log(filteredData)}
     else if (inputValue==="" && cdrpdn!=""){
-        var filteredData = data.filter(ufo => ufo.city === drpdn)
+        var filteredData = data.filter(ufo => ufo.city === cdrpdn)
         console.log(filteredData)}
     else {
-        var filteredData = data.filter(ufo => (ufo.city === drpdn && ufo.datetime === inputValue) )
+        var filteredData = data.filter(ufo => (ufo.city === cdrpdn && ufo.datetime === inputValue) )
         console.log(filteredData)
     }
     
@@ -71,6 +71,11 @@ srchbutton.on("click", function() {
     tablefill(filteredData)
     d3.select("#datetime").property("value","")
     d3.select("#d3-citydrpdn").property("value","")
+    inputValue=""
+    cdrpdn=""
+    sdrpdn=""
+    ctrydrpdn=""
+    shpdrpdn=""
     d3.select("#d3-statedrpdn").property("value","")
     
     d3.select("#d3-countrydrpdn").property("value","")
