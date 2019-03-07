@@ -11,13 +11,14 @@ console.log(srchbutton.text())
 var inputElement = d3.select("#datetime")
 var inputValue = inputElement.property("value")
 var filteredData = data.filter(ufo => ufo.datetime === inputValue)
-
+var flag=0
 var citydrpdn=d3.select("#d3-citydrpdn")
 var statedrpdn=d3.select("#d3-statedrpdn")
 var countrydrpdn=d3.select("#d3-countrydrpdn")
 var shapedrpdn=d3.select("#d3-shapedrpdn")
-
-
+var filteredData=[]
+filteredData=tableData
+console.log("first :",filteredData)
 srchbutton.on("click", function() {
     
 
@@ -39,35 +40,33 @@ srchbutton.on("click", function() {
     console.log(inputValue)
     console.log("dropdown value:",cdrpdn)
     
-    if (cdrpdn==="" && inputValue===""){
-    
-    //if (inputValue===""){
-        var filteredData=data
-        inputValue=originalPlaceholder
+    if (inputValue!=""){
+      filteredData = filteredData.filter(ufo => ufo.datetime === inputValue)
+      flag=1
     }
-    else if (inputValue!="" && cdrpdn===""){    
-        var filteredData = data.filter(ufo => ufo.datetime === inputValue)
-        console.log(filteredData)}
-    else if (inputValue==="" && cdrpdn!=""){
-        var filteredData = data.filter(ufo => ufo.city === cdrpdn)
-        console.log(filteredData)}
-    else {
-        var filteredData = data.filter(ufo => (ufo.city === cdrpdn && ufo.datetime === inputValue) )
-        console.log(filteredData)
-    }
+      
     
+    if (cdrpdn!=""){
+      filteredData = filteredData.filter(ufo => ufo.city === cdrpdn)
+      flag=1
+    }
     if(sdrpdn!=""){
-        filteredData = data.filter(ufo => ufo.state === sdrpdn)
-    }
-    if(ctrydrpdn!=""){
-        filteredData = data.filter(ufo => ufo.country === ctrydrpdn)
-    }
-    if(shpdrpdn!=""){
-        filteredData = data.filter(ufo => ufo.shape === shpdrpdn)
-    }
+      filteredData = filteredData.filter(ufo => ufo.state === sdrpdn)
+      flag=1
+  }
+  if(ctrydrpdn!=""){
+      filteredData = filteredData.filter(ufo => ufo.country === ctrydrpdn)
+      flag=1
+  }
+  if(shpdrpdn!=""){
+      filteredData = filteredData.filter(ufo => ufo.shape === shpdrpdn)
+      flag=1
+  }
 
-
-
+    if (flag===0) {
+      filteredData=tableData
+    }
+    console.log(filteredData)
     tablefill(filteredData)
     d3.select("#datetime").property("value","")
     d3.select("#d3-citydrpdn").property("value","")
@@ -82,7 +81,7 @@ srchbutton.on("click", function() {
     d3.select("#d3-shapedrpdn").property("value","")
     
     d3.select("#datetime").property("placeholder",inputValue)
-
+    filteredData=tableData
 })
 
 /////////////////////TABLE FILL DATA/////////////////////////
