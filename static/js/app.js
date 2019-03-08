@@ -1,239 +1,56 @@
-// from data.js
-//d3.event.preventDefault()
-var tableData = data;
-console.log(tableData)
-var originalPlaceholder= d3.select("#datetime").property("placeholder")
-console.log(originalPlaceholder)
-// YOUR CODE HERE!
-var tbody = d3.select("tbody")
-var srchbutton = d3.select("#filter-btn")
-console.log(srchbutton.text())
-var inputElement = d3.select("#datetime")
-var inputValue = inputElement.property("value")
-var filteredData = data.filter(ufo => ufo.datetime === inputValue)
-var flag=0
-var citydrpdn=d3.select("#d3-citydrpdn")
-var statedrpdn=d3.select("#d3-statedrpdn")
-var countrydrpdn=d3.select("#d3-countrydrpdn")
-var shapedrpdn=d3.select("#d3-shapedrpdn")
-var filteredData=[]
-filteredData=tableData
-console.log("first :",filteredData)
-srchbutton.on("click", function() {
-    
+function buildMetadata(sample) {
 
+  // @TODO: Complete the following function that builds the metadata panel
 
-    d3.event.preventDefault()
-    var inputValue = inputElement.property("value")
-    var citydrpdn=d3.select("#d3-citydrpdn")
-    var cdrpdn = citydrpdn.property("value")
+  // Use `d3.json` to fetch the metadata for a sample
+    // Use d3 to select the panel with id of `#sample-metadata`
 
-    var statedrpdn=d3.select("#d3-statedrpdn")
-    var sdrpdn = statedrpdn.property("value")
+    // Use `.html("") to clear any existing metadata
 
-    var countrydrpdn=d3.select("#d3-countrydrpdn")
-    var ctrydrpdn = countrydrpdn.property("value")
+    // Use `Object.entries` to add each key and value pair to the panel
+    // Hint: Inside the loop, you will need to use d3 to append new
+    // tags for each key-value in the metadata.
 
-    var shapedrpdn=d3.select("#d3-shapedrpdn")
-    var shpdrpdn = shapedrpdn.property("value")
+    // BONUS: Build the Gauge Chart
+    // buildGauge(data.WFREQ);
+}
 
-    console.log(inputValue)
-    console.log("dropdown value:",cdrpdn)
-    
-    if (inputValue!=""){
-      filteredData = filteredData.filter(ufo => ufo.datetime === inputValue)
-      flag=1
-    }
-      
-    
-    if (cdrpdn!=""){
-      filteredData = filteredData.filter(ufo => ufo.city === cdrpdn)
-      flag=1
-    }
-    if(sdrpdn!=""){
-      filteredData = filteredData.filter(ufo => ufo.state === sdrpdn)
-      flag=1
-  }
-  if(ctrydrpdn!=""){
-      filteredData = filteredData.filter(ufo => ufo.country === ctrydrpdn)
-      flag=1
-  }
-  if(shpdrpdn!=""){
-      filteredData = filteredData.filter(ufo => ufo.shape === shpdrpdn)
-      flag=1
-  }
+function buildCharts(sample) {
 
-    if (flag===0) {
-      filteredData=tableData
-    }
-    console.log(filteredData)
-    tablefill(filteredData)
-    d3.select("#datetime").property("value","")
-    d3.select("#d3-citydrpdn").property("value","")
-    inputValue=""
-    cdrpdn=""
-    sdrpdn=""
-    ctrydrpdn=""
-    shpdrpdn=""
-    d3.select("#d3-statedrpdn").property("value","")
-    
-    d3.select("#d3-countrydrpdn").property("value","")
-    d3.select("#d3-shapedrpdn").property("value","")
-    
-    d3.select("#datetime").property("placeholder",inputValue)
-    filteredData=tableData
-})
+  // @TODO: Use `d3.json` to fetch the sample data for the plots
 
-/////////////////////TABLE FILL DATA/////////////////////////
-function tablefill(data){
+    // @TODO: Build a Bubble Chart using the sample data
 
-d3.select("tbody").selectAll("td").remove()
-//d3.selectAll("td").remove()
-data.forEach((ufo) => {
-    var row = tbody.append("tr");
-    Object.entries(ufo).forEach(([key, value]) => {
-      var cell = tbody.append("td");
-      cell.text(value);
+    // @TODO: Build a Pie Chart
+    // HINT: You will need to use slice() to grab the top 10 sample_values,
+    // otu_ids, and labels (10 each).
+}
+
+function init() {
+  // Grab a reference to the dropdown select element
+  var selector = d3.select("#selDataset");
+
+  // Use the list of sample names to populate the select options
+  d3.json("/names").then((sampleNames) => {
+    sampleNames.forEach((sample) => {
+      selector
+        .append("option")
+        .text(sample)
+        .property("value", sample);
     });
-  })};
-///////////////////////CITY COMBO FILL DATA //////////////////////
-  function citydrpfill(data){
-    var cityarr = []
-    citydrpdn.append("option")
-    data.forEach((ufo)=>{
-    Object.entries(ufo).forEach(([key, value]) => {
-      ;
-      if (key==="city"){
-            cityarr.push(value)
-            
-            //var cell = citydrpdn.append("option")
-            //cell.text(value)
-        };
 
-
-  })
-})
-const distcity= [...new Set(cityarr)]
-distcity.forEach(element=>{
-var cell = citydrpdn.append("option")
-            cell.text(element)
-
-})
+    // Use the first sample from the list to build the initial plots
+    const firstSample = sampleNames[0];
+    buildCharts(firstSample);
+    buildMetadata(firstSample);
+  });
 }
-//////////////////////////////////////////////////////////////////
 
-///////////////////////state COMBO FILL DATA //////////////////////
-function statedrpfill(data){
-    var statearr = []
-    statedrpdn.append("option")
-    data.forEach((ufo)=>{
-    Object.entries(ufo).forEach(([key, value]) => {
-      ;
-      if (key==="state"){
-        statearr.push(value)
-            //var cell = statedrpdn.append("option")
-            //cell.text(value)
-        };
-
-
-  })
-})
-const diststate= [...new Set(statearr)]
-diststate.forEach(element=>{
-var cell = statedrpdn.append("option")
-            cell.text(element)
-})
+function optionChanged(newSample) {
+  // Fetch new data each time a new sample is selected
+  buildCharts(newSample);
+  buildMetadata(newSample);
 }
-//////////////////////////////////////////////////////////////////
 
-///////////////////////country COMBO FILL DATA //////////////////////
-function countrydrpfill(data){
-    var countryarr=[]
-    countrydrpdn.append("option")
-    data.forEach((ufo)=>{
-    Object.entries(ufo).forEach(([key, value]) => {
-      ;
-      if (key==="country"){
-            countryarr.push(value)
-            //var cell = countrydrpdn.append("option")
-            //cell.text(value)
-        };
-
-
-  })
-})
-const distcntry= [...new Set(countryarr)]
-distcntry.forEach(element=>{
-var cell = countrydrpdn.append("option")
-            cell.text(element)
-})
-
-}
-//////////////////////////////////////////////////////////////////
-
-///////////////////////shape COMBO FILL DATA //////////////////////
-function shapedrpfill(data){
-    var shparr=[]
-    shapedrpdn.append("option")
-    data.forEach((ufo)=>{
-    Object.entries(ufo).forEach(([key, value]) => {
-      ;
-      if (key==="shape"){
-          shparr.push(value)
-            //var cell = shapedrpdn.append("option")
-            //cell.text(value)
-        };
-
-
-  })
-})
-const distshp= [...new Set(shparr)]
-distshp.forEach(element=>{
-var cell = shapedrpdn.append("option")
-            cell.text(element)
-})
-}
-//////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-tablefill(data)
-citydrpfill(data)
-statedrpfill(data)
-countrydrpfill(data)
-shapedrpfill(data)
-
-
-
-
-
-
-
-// var submit = d3.select("#submit");
-
-// submit.on("click", function() {
-
-//   // Prevent the page from refreshing
-//   d3.event.preventDefault();
-
-//   // Select the input element and get the raw HTML node
-//   var inputElement = d3.select("#patient-form-input");
-
-//   // Get the value property of the input element
-//   var inputValue = inputElement.property("value");
-
-//   console.log(inputValue);
-//   console.log(people);
-
-//   var filteredData = people.filter(person => person.bloodType === inputValue);
-
-//   console.log(filteredData);
-
-//   // BONUS: Calculate summary statistics for the age field of the filtered data
-
-//   // First, create an array with just the age values
-//   var ages = filteredData.map(person => person.age);
+// Initialize the dashboard
+init();

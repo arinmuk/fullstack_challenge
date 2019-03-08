@@ -1,0 +1,16 @@
+var text1 = d3.select(".text1").text()
+console.log(text1)
+d3.select(".text1").text("i changed to say something else")
+console.log(text1)
+var text2=d3.select("#text2").text()
+console.log(text2)
+d3.select("#text2").text("i changed to say something else also . text2")
+console.log(text2)
+var link1 = d3.select(".my-link>a")
+var link1attr=link1.attr("href")
+console.log(link1attr)
+link1.attr("href","https://python.org")
+d3.selectAll("li").style("color","blue")
+for(i=0;i<4;i++){
+d3.select("ul").append("li").text("item "+(i+4))
+}
