@@ -106,7 +106,22 @@ def samples(sample):
        "otu_labels": sample_data.otu_label.tolist(),
     }
     return  jsonify(data)
+@app.route("/wfreq/<sample>")
+def sample_wfreq(sample):
+    """Return the MetaData for a given sample."""
+    print(sample)
+    sel=[]
+    srch_sample = sample
+    results = session.query(samples_m.WFREQ).\
+        filter(samples_m.sample == srch_sample).all()
+    # Create a dictionary entry for each row of metadata information
+    samples_m2 = {}
+    for result in results:
+        samples_m2["WFREQ"] = result[0]
+        
 
+    print(samples_m2)
+    return jsonify(samples_m2)
 
 if __name__ == "__main__":
     app.run()

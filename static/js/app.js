@@ -78,6 +78,7 @@ function buildCharts(sample) {
  //console.log("otuid:",otuid)
  //console.log("otulabels:",otulabels)
  //console.log("svalues:",svalues)
+
       // @TODO: Build a Bubble Chart using the sample data
 
       var trace1 = {
@@ -96,18 +97,11 @@ function buildCharts(sample) {
       var layout1 = {
         title: '',
         showlegend: false,
-        height: 600,
-        width: 1500
+        height: 500,
+        width: 1200
       };
       
       Plotly.newPlot('bubble', data1, layout1)
-
-
-
-
-
-
-
 
 
     // @TODO: Build a Pie Chart
@@ -120,14 +114,89 @@ function buildCharts(sample) {
     }];
   
     var layout = {
-      height: 600,
-      width: 800
+      height: 500,
+  width: 500
     };
   
     Plotly.newPlot("pie", data, layout)
 
+  // @TODO: Build a Guage Chart may be working
+  urlstring="/wfreq/"+sample
+  d3.json(urlstring).then((sample_g) => {
+    valueg=sample_g.WFREQ
+
+    //8888888888888888888888888888888888888
+
+    // Enter a scrubbing freq per week between 0 and 10
+var level = valueg;
+
+// Trig to calc meter point
+var degrees = 9- level,
+     radius = .50;
+var radians = degrees * Math.PI / 10
+var x = radius * Math.cos(radians);
+var y = radius * Math.sin(radians);
+
+// Path: may have to change to create a better triangle
+var mainPath = 'M -.0 -0.025 L .0 0.025 L ',
+     pathX = String(x),
+     space = ' ',
+     pathY = String(y),
+     pathEnd = ' Z';
+var path = mainPath.concat(pathX,space,pathY,pathEnd);
+
+var data = [{ type: 'scatter',
+   x: [0], y:[0],
+    marker: {size: 28, color:'850000'},
+    showlegend: false,
+    name: 'wash freq per week',
+    text: level,
+    hoverinfo: 'text+name'},
+  { values: [50/9, 50/9, 50/9, 50/9, 50/9, 50/9, 50/9, 50/9, 50/9, 50],
+  rotation: 90,
+  text: ['8-9', '7-8', '6-7', '5-6', '4-5', '3-4', '2-3', '1-2', '0-1', ''],
+  textinfo: 'text',
+  textposition:'inside',
+  marker: {colors:['rgba(14, 127, 0, .5)', 'rgba(110, 154, 22, .5)',
+                         'rgba(155, 202, 42, .5)', 'rgba(202, 209, 95, .5)',
+                         'rgba(210, 206, 145, .5)', 'rgba(232, 226, 202, .5)',
+                         'rgba(140, 154, 22, 0)','rgba(10, 154, 22, .5)','rgba(80, 154, 22, .5)','rgba(255, 255, 255, 0)']},
+  labels: ['8-9', '7-8', '6-7', '5-6', '4-5', '3-4', '2-3', '1-2', '0-1', ''],
+  hoverinfo: 'label',
+  hole: .5,
+  type: 'pie',
+  showlegend: false
+}];
+
+var layout = {
+  shapes:[{
+      type: 'path',
+      path: path,
+      fillcolor: '850000',
+      line: {
+        color: '850000'
+      }
+    }],
+  title: 'Gauge Wash freq per Week',
+  height: 550,
+  width: 700,
+  xaxis: {zeroline:false, showticklabels:false,
+             showgrid: false, range: [-1, 1]},
+  yaxis: {zeroline:false, showticklabels:false,
+             showgrid: false, range: [-1, 1]}
+};
+
+Plotly.newPlot('gauge', data, layout);
 
 
+    //99999999999999999999999999999999999999
+
+
+
+
+
+
+  })
 
     // HINT: You will need to use slice() to grab the top 10 sample_values,
     // otu_ids, and labels (10 each).
