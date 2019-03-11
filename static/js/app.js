@@ -38,9 +38,13 @@ function buildCharts(sample) {
   var toptenarr=[]
   // @TODO: Use `d3.json` to fetch the sample data for the plots
   urlstring="/samples/"+sample
-  otuid=[]
-  otulabels=[]
-  svalues=[]
+  var otuid=[]
+  var otulabels=[]
+  var svalues=[]
+  var otuidbub=[]
+  var svaluesbub=[]
+  var otulabelsbub=[]
+
   //console.log(urlstring)
     d3.json(urlstring).then((sample_m) => {
       //console.log(sample_m)
@@ -120,7 +124,7 @@ function buildCharts(sample) {
       width: 800
     };
   
-    Plotly.plot("pie", data, layout)
+    Plotly.newPlot("pie", data, layout)
 
 
 
