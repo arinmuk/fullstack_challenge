@@ -8,9 +8,14 @@ function buildMetadata(sample) {
     d3.json(urlstring).then(function(sample_m) {
       var objsample=sample_m
       //console.log(objsample)
-      //var htmlclear = d3.select(".sample-metadata").html()
-      //console.log(htmlclear)
+      
       var htmlclear = d3.select(".panel-body")
+      var test = htmlclear.html()
+      
+      console.log(test)
+      if (test !=''){
+        d3.select(".panel-body").html("")
+      }
       //console.log(htmlclear)
       Object.entries(objsample).forEach(([key,value])=>{
         var row = htmlclear.append("h5")
@@ -36,9 +41,9 @@ function buildCharts(sample) {
   otuid=[]
   otulabels=[]
   svalues=[]
-  console.log(urlstring)
+  //console.log(urlstring)
     d3.json(urlstring).then((sample_m) => {
-      console.log(sample_m)
+      //console.log(sample_m)
       otuidbub=sample_m.otu_ids
       otulabelsbub=sample_m.otu_labels
       svaluesbub=sample_m.sample_values
@@ -49,16 +54,16 @@ function buildCharts(sample) {
             workarr.push(sample_m[element][j])
 
           }
-          console.log(workarr)
+          //console.log(workarr)
           samp_arr.push(workarr)
          
 
     }
-    console.log(samp_arr)
+    //console.log(samp_arr)
     samp_arr.sort(function(a,b){
       return b[2]-a[2]
     })
-    console.log(samp_arr)
+   // console.log(samp_arr)
     toptenarr=samp_arr.slice(0,10)
     console.log(toptenarr)
   for (var x=0;x<10;x++){  
@@ -66,9 +71,9 @@ function buildCharts(sample) {
     otulabels.push(toptenarr[x][1])
     svalues.push(toptenarr[x][2])
 }
- console.log("otuid:",otuid)
- console.log("otulabels:",otulabels)
- console.log("svalues:",svalues)
+ //console.log("otuid:",otuid)
+ //console.log("otulabels:",otulabels)
+ //console.log("svalues:",svalues)
       // @TODO: Build a Bubble Chart using the sample data
 
       var trace1 = {
@@ -150,9 +155,14 @@ function init() {
 
 function optionChanged(newSample) {
   // Fetch new data each time a new sample is selected
-  d3.event.preventDefault()
+
+  //d3.event.preventDefault()
+  //var dset = d3.select("#selDataset").node().value
+  //console.log(dset)
+
   buildCharts(newSample);
   buildMetadata(newSample);
+
 }
 
 // Initialize the dashboard
