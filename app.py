@@ -11,25 +11,27 @@ from sqlalchemy import func,inspect,table,column
 from flask import Flask, jsonify, render_template
 from flask_sqlalchemy import SQLAlchemy
 
+
+
+
 app = Flask(__name__)
 
 
 #################################################
 # Database Setup
 #################################################
-engine = create_engine("sqlite:///db/bellybutton.sqlite?check_same_thread=False")
+
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///db/bellybutton.sqlite?check_same_thread=False"
+db = SQLAlchemy(app)
+
+# reflect an existing database into a new model
 Base = automap_base()
 # reflect the tables
-Base.prepare(engine, reflect=True)
-Base.classes.keys()
-inspector = inspect(engine)
-inspector.get_table_names()
-#otu = Base.classes.otu
-samples_t = Base.classes.samples
-samples_m=Base.classes.sample_metadata
-session = Session(engine)
-conn = engine.connect()
-session = Session(bind=conn)
+Base.prepare(db.engine, reflect=True)
+
+# Save references to each table
+Samples_Metadata = Base.classes.sample_metadata
+Samples = Base.classes.samples
 
 
 @app.route("/")
@@ -41,87 +43,74 @@ def index():
 @app.route("/names")
 def names():
     """Return a list of sample names."""
-    results = session.query(samples_m.sample).all()
-
-    
-    df=pd.DataFrame(results)
-
-    lst=df["sample"].tolist()
-    names_sample=[item for item in lst]
 
     # Use Pandas to perform the sql query
-  
+    stmt = db.session.query(Samples).statement
+    df = pd.read_sql_query(stmt, db.session.bind)
 
     # Return a list of the column names (sample names)
-    return jsonify(names_sample)
+    return jsonify(list(df.columns)[2:])
+
 
 @app.route("/metadata/<sample>")
 def sample_metadata(sample):
     """Return the MetaData for a given sample."""
     print(sample)
-    sel=[]
-    srch_sample = sample
-    #sel = [
-     #   samples_m.SAMPLEID,
-      #  samples_m.ETHNICITY,
-       # samples_m.GENDER,
-        #samples_m.AGE,
-        #samples_m.LOCATION,
-        #samples_m.BBTYPE,
-        #samples_m.WFREQ
-    #]
+    sel = [
+        Samples_Metadata.sample,
+        Samples_Metadata.ETHNICITY,
+        Samples_Metadata.GENDER,
+        Samples_Metadata.AGE,
+        Samples_Metadata.LOCATION,
+        Samples_Metadata.BBTYPE,
+        Samples_Metadata.WFREQ,
+    ]
 
-    #results = db.session.query(*sel).filter(samples_m.sample == srch_sample).all()
-    results = session.query(samples_m.sample,samples_m.ETHNICITY,samples_m.GENDER, samples_m.AGE,samples_m.LOCATION,samples_m.BBTYPE,samples_m.WFREQ).\
-        filter(samples_m.sample == srch_sample).all()
+    results = db.session.query(*sel).filter(Samples_Metadata.sample == sample).all()
+
     # Create a dictionary entry for each row of metadata information
-    samples_m1 = {}
+    sample_metadata = {}
     for result in results:
-        samples_m1["sample"] = result[0]
-        samples_m1["ETHNICITY"] = result[1]
-        samples_m1["GENDER"] = result[2]
-        samples_m1["AGE"] = result[3]
-        samples_m1["LOCATION"] = result[4]
-        samples_m1["BBTYPE"] = result[5]
-        samples_m1["WFREQ"] = result[6]
+        sample_metadata["sample"] = result[0]
+        sample_metadata["ETHNICITY"] = result[1]
+        sample_metadata["GENDER"] = result[2]
+        sample_metadata["AGE"] = result[3]
+        sample_metadata["LOCATION"] = result[4]
+        sample_metadata["BBTYPE"] = result[5]
+        sample_metadata["WFREQ"] = result[6]
 
-    print(samples_m1)
-    return jsonify(samples_m1)
+    print(sample_metadata)
+    return jsonify(sample_metadata)
 
+@app.route("/wfreq/<sample>")
+def sample_washfreq(sample):
+    """Return the MetaData for a given sample."""
+    sel=[Samples_Metadata.WFREQ,]
+    results = db.session.query(*sel).filter(Samples_Metadata.sample == sample).all()
+    # Create a dictionary entry for each row of metadata information
+    samples_wash = {}
+    for result in results:
+        samples_wash["WFREQ"] = result[0]
+        print(result[0])
+    return jsonify(samples_wash) 
 
 @app.route("/samples/<sample>")
 def samples(sample):
     """Return `otu_ids`, `otu_labels`,and `sample_values`."""
-    print(sample)
-    stmt = session.query(samples_t).statement
-    df = pd.read_sql_query(stmt, session.bind)
-    df.head()
+    stmt = db.session.query(Samples).statement
+    df = pd.read_sql_query(stmt, db.session.bind)
+
     # Filter the data based on the sample number and
     # only keep rows with values above 1
     sample_data = df.loc[df[sample] > 1, ["otu_id", "otu_label", sample]]
     # Format the data to send as json
     data = {
-       "otu_ids": sample_data.otu_id.values.tolist(),
-       "sample_values": sample_data[sample].values.tolist(),
-       "otu_labels": sample_data.otu_label.tolist(),
+        "otu_ids": sample_data.otu_id.values.tolist(),
+        "sample_values": sample_data[sample].values.tolist(),
+        "otu_labels": sample_data.otu_label.tolist(),
     }
-    return  jsonify(data)
-@app.route("/wfreq/<sample>")
-def sample_wfreq(sample):
-    """Return the MetaData for a given sample."""
-    print(sample)
-    sel=[]
-    srch_sample = sample
-    results = session.query(samples_m.WFREQ).\
-        filter(samples_m.sample == srch_sample).all()
-    # Create a dictionary entry for each row of metadata information
-    samples_m2 = {}
-    for result in results:
-        samples_m2["WFREQ"] = result[0]
-        
+    return jsonify(data)
 
-    print(samples_m2)
-    return jsonify(samples_m2)
 
 if __name__ == "__main__":
     app.run()
