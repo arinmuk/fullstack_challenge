@@ -7,9 +7,12 @@ import sqlalchemy
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
 from sqlalchemy import create_engine
-
+from sqlalchemy import func,inspect,table,column
 from flask import Flask, jsonify, render_template
 from flask_sqlalchemy import SQLAlchemy
+
+
+
 
 app = Flask(__name__)
 
@@ -18,7 +21,7 @@ app = Flask(__name__)
 # Database Setup
 #################################################
 
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///db/bellybutton.sqlite"
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///db/bellybutton.sqlite?check_same_thread=False"
 db = SQLAlchemy(app)
 
 # reflect an existing database into a new model
@@ -52,6 +55,7 @@ def names():
 @app.route("/metadata/<sample>")
 def sample_metadata(sample):
     """Return the MetaData for a given sample."""
+    print(sample)
     sel = [
         Samples_Metadata.sample,
         Samples_Metadata.ETHNICITY,
@@ -78,6 +82,17 @@ def sample_metadata(sample):
     print(sample_metadata)
     return jsonify(sample_metadata)
 
+@app.route("/wfreq/<sample>")
+def sample_washfreq(sample):
+    """Return the MetaData for a given sample."""
+    sel=[Samples_Metadata.WFREQ,]
+    results = db.session.query(*sel).filter(Samples_Metadata.sample == sample).all()
+    # Create a dictionary entry for each row of metadata information
+    samples_wash = {}
+    for result in results:
+        samples_wash["WFREQ"] = result[0]
+        print(result[0])
+    return jsonify(samples_wash) 
 
 @app.route("/samples/<sample>")
 def samples(sample):
