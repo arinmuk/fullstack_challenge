@@ -17,7 +17,7 @@ app = Flask(__name__)
 #################################################
 # Database Setup
 #################################################
-engine = create_engine("sqlite:///db/bellybutton.sqlite?check_same_thread=False")
+engine = create_engine ("sqlite:///db/bellybutton.sqlite?check_same_thread=False")
 Base = automap_base()
 # reflect the tables
 Base.prepare(engine, reflect=True)
@@ -45,7 +45,7 @@ def names():
 
     
     df=pd.DataFrame(results)
-
+    df.rename(columns={0:"sample"},inplace=True)
     lst=df["sample"].tolist()
     names_sample=[item for item in lst]
 

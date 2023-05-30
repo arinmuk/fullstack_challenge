@@ -97,7 +97,7 @@ function buildCharts(sample) {
       var layout1 = {
         title: '',
         showlegend: false,
-        height: 500,
+        height: 700,
         width: 1200
       };
       
